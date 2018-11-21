@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+    </script>
+</head>
+<body>
+<!-- 主界面不动、菜单移动 -->
+<!-- 侧滑导航根容器 -->
+<div class="mui-off-canvas-wrap mui-draggable mui-slide-in">
+  <!-- 菜单容器 -->
+  <aside class="mui-off-canvas-left" id="offCanvasSide">
+    <div class="mui-scroll-wrapper">
+      <div class="mui-scroll">
+        <!-- 菜单具体展示内容 -->
+        
+      </div>
+    </div>
+  </aside>
+  <!-- 主页面容器 -->
+  <div class="mui-inner-wrap">
+    <!-- 主页面标题 -->
+    <header class="mui-bar mui-bar-nav">
+     <h1 class="mui-title" style="font-size: 30px;">首页</h1>
+      <a class="mui-icon mui-action-menu mui-icon-bars mui-pull-left" href="#offCanvasSide"></a>
+    </header>
+    <div class="mui-content mui-scroll-wrapper" id="offCanvasContentScroll" style="background-color: #242424;">
+      <div class="mui-scroll">
+        <!-- 主界面具体展示内容 -->
+        
+        			<div class="mui-slider">
+ 						 <div class="mui-slider-group mui-slider-loop" id="photoSlider">
+   						<!--图片-->
+ 				 		</div>
+ 				 		<!--图片圆点-->
+ 				 		<div class="mui-slider-indicator" id="dian">
+                        
+                    	</div>
+					</div>
+
+						<p class='title' style='font-size: 30px;'> &nbsp;  今日热闻</p>
+						<ul class="mui-table-view" id="infoData"  style="background-color: #242424;" >
+
+						</ul>
+      </div>
+    </div>  
+    <div class="mui-off-canvas-backdrop"></div>
+  </div>
+</div>
+</body>
+<script type="text/javascript" charset="UTF-8">
+	
+	//a标签的启用功能
+			mui('body').on('tap', 'a', function() {
+				window.top.location.href = this.href;
+			});
+	
+	
+	//页面滑动
+			mui('#offCanvasContentScroll').scroll();
+	
+	//获取元素id
+	var photoSlider=document.getElementById("photoSlider");
+	var dian=document.getElementById("dian");
+	var ul=document.getElementById("infoData");
+	
+	
+	sx();
+	
+	
+	mui.init({
+  	pullRefresh : {
+    container:"#refreshContainer",//下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+    down : {
+      style:'circle',//必选，下拉刷新样式，目前支持原生5+ ‘circle’ 样式
+      color:'#2BD009', //可选，默认“#2BD009” 下拉刷新控件颜色
+      height:'50px',//可选,默认50px.下拉刷新控件的高度,
+      range:'100px', //可选 默认100px,控件可下拉拖拽的范围
+      offset:'0px', //可选 默认0px,下拉刷新控件的起始位置
+      auto: true,//可选,默认false.首次加载自动上拉刷新一次
+      callback :pullfresh-sx() //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+    }
+  }
+});
+	
+
+	//异步请求
+	function sx(){
+		
+		
+       	 mui.ajax('http://news-at.zhihu.com/api/4/news/latest',{
+			type:'get',//HTTP请求类型
+			success:function(data){
+				//console.log(data.stories);
+				    var classParam="mui-slider-item mui-slider-item-duplicate";
+					var url="content.html?id="+ data.top_stories[data.top_stories.length - 1].id;
+					var imageSrc=data.top_stories[data.top_stories.length-1].image;
+					var content=data.top_stories[data.top_stories.length-1].title;
+					carousel(classParam,url,imageSrc,content);
+/*				photoSlider.innerHTML +=
+						"<div class='mui-slider-item mui-slider-item-duplicate'>" +
+						"	<a href='#'>" +
+						"		<img src='" + data.top_stories[data.top_stories.length - 1].image + "'>" +
+						" 		<p class='mui-slider-title'>" + data.top_stories[data.top_stories.length - 1].title + "</p>" +
+						"	</a>" +
+						"</div>";*/
+				mui.each(data.top_stories,function(i,v){
+					var classParam="mui-slider-item"
+					var url="content.html?id=" + v.id;
+					var imageSrc=v.image;
+					var content=v.title;
+					carousel(classParam,url,imageSrc,content);
+						
+					if(i == 0){
+						dian.innerHTML +="<div class='mui-indicator mui-active'></div>";
+					}else {
+						dian.innerHTML+="<div class='mui-indicator'></div>";
+					}		
+				});
+					var classParam="mui-slider-item mui-slider-item-duplicate";
+					var url="content.html?id=" + data.top_stories[0].id;
+					var imageSrc=data.top_stories[0].image;
+					var content=data.top_stories[0].title;
+					carousel(classParam,url,imageSrc,content);
+				
+		/*		var div = document.createElement("div");
+				div.setAttribute('class', "mui-slider-item mui-slider-item-duplicate");
+				div.innerHTML ="<img src='"+data.stories[data.stories.length-1].images[0]+"'>";
+				document.getElementById("img").appendChild(div);
+				//mui.each()
+				for (var i = 0; i < data.stories.length; i++) {
+					alert(data.stories[i].id);
+				 	div = document.createElement("div");
+					console.log(data.stories[i].images[0]);
+					div.className="mui-slider-item";
+					div.innerHtml="<a href='#'><img src='"+data.stories[i].images+"'/></a>";
+					document.getElementById("img").appendChild(div);
+				}
+				div.innerHTML = "<a href='#'><img src='"+data.stories[0].images[0]+"' /></a>";
+				*/
+			/*	photoSlider.innerHTML +=
+						"<div class='mui-slider-item mui-slider-item-duplicate'>" +
+						"	<a href='#'>" +
+						"		<img src='" + data.top_stories[0].image + "'>" +
+						" 		<p class='mui-slider-title'>" + data.top_stories[0].title + "</p>" +
+						"	</a>" +
+						"</div>";*/
+				
+				var gallery = mui('.mui-slider');
+				gallery.slider({
+		  				interval:2000//自动轮播周期，若为0则不自动播放，默认为0；
+				});
+				
+				//获取头条
+				mui.each(data.stories,function(i,v){
+					var url="content.html?id=" + v.id;
+					var imageSrc=v.images;
+					var title=v.title;
+					JournalismInfo(url,imageSrc,title);
+					
+				})
+				
+				
+			}
+			
+		});
+	};
+	
+		
+		//图片轮播
+		function carousel(classParam, url, imageSrc, content){
+				//创建div
+				//创建a
+				//创建一个img
+				//创建p
+
+				var div =document.createElement("div");
+				div.setAttribute("class",classParam);
+				photoSlider.appendChild(div);
+				
+				
+				var a =document.createElement("a");
+				a.setAttribute("href",url);
+				div.appendChild(a);
+				
+				var img = document.createElement("img");
+				img.setAttribute("src",imageSrc);
+				a.appendChild(img);
+				
+				var h2 = document.createElement("h2");
+				 h2.setAttribute("class",content);
+				 h2.innerHTML=content;
+				 a.appendChild(h2);					
+		}
+		
+		//定义一个头条功能
+		function JournalismInfo(url,imageSrc,conten){
+			var li = document.createElement("li");
+			li.setAttribute("class",'mui-table-view-cell mui-media');
+			ul.appendChild(li);
+			
+			var a = document.createElement("a");
+			a.setAttribute("href",url);
+			li.appendChild(a);
+			
+			
+			var img=document.createElement("img");
+			img.setAttribute("class",'mui-media-object mui-pull-left');
+			img.setAttribute("src",imageSrc);
+			a.appendChild(img);
+			
+			var div=document.createElement("div");
+			div.setAttribute("class",'mui-media-body');
+			a.appendChild(div);
+			
+			var p = document.createElement("p");
+			p.setAttribute("class",'class=mui-ellipsis');
+			p.innerHTML= conten;
+			div.appendChild(p);
+		}
+		
+		
+				
+</script>
+</html>

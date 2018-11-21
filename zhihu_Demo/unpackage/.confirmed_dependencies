@@ -1,0 +1,12 @@
+{
+  "index.html": {
+    "refer": [
+      "content.html"
+    ]
+  },
+  "content.html": {
+    "refer": [
+      "index.html"
+    ]
+  }
+}
